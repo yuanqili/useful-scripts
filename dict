@@ -1,0 +1,13 @@
+#!/usr/local/bin/python3
+
+from bs4 import BeautifulSoup
+import requests
+import sys
+
+if __name__ == '__main__':
+        content = requests.get('https://www.vocabulary.com/dictionary/' + sys.argv[1]).content
+        soup = BeautifulSoup(content, 'html.parser')
+        # retrieve vocabulary definition
+        for definition in soup.find_all("h3", {"class": "definition"}):
+                print(definition.a['title'] + ': ', end="")
+                print(definition.contents[2].strip())
