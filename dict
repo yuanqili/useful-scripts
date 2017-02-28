@@ -5,6 +5,9 @@ import requests
 import sys
 from os import system
 import json
+import fileinput
+
+from spritz import spritz
 
 url = 'https://www.vocabulary.com/dictionary/'
 lexeme = 'accrete'
@@ -26,7 +29,8 @@ class Word(object):
         soup = bs(html.content, 'html.parser')
         vocab = soup.find('div', {'class': 'definitionsContainer'})
         if vocab is None:
-            print('Cannot find word ', lexeme)
+            print('Cannot find word', lexeme)
+            return
 
         # add short and long explanations
         self.blurb = {'short': '', 'long': ''}
@@ -60,10 +64,17 @@ class Word(object):
         for i in self.definition:
             print('\033[32m' + i['pos'] + '\033[0m', i['meaning'])
 
-
 if __name__ == '__main__':
 
-    for i in range(1, len(sys.argv)):
-        Word(sys.argv[i]).show()
-        system('say ' + sys.argv[i])
+    # review mode
+    if len(sys.argv) == 2 and sys.argv[1] == '-r':
+        words = ''
+        for line in fileinput.input(sys.argv[2:]):
+            words += line
+        spritz(200, words, True)
+
+    # learn mode
+    for line in fileinput.input(sys.argv[2:]):
+        Word(line.strip()).show()
+        system('say ' + line.strip())
         print()
